@@ -1,0 +1,43 @@
+{
+  "name": "evtx",
+  "version": "0.1.0",
+  "author": "redpelicans",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint src --color",
+    "dist": "DEBUG=evtx* babel -o index.js ./src/index.js",
+    "test": "mocha --require babel-core/register --reporter spec \"./**/__test__/*.js\" ",
+    "coverage": "nyc yarn test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.24.1",
+    "babel-eslint": "^7.2.2",
+    "babel-preset-latest": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "^14.1.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^4.0.0",
+    "eslint-plugin-react": "^6.10.3",
+    "mocha": "^3.2.0",
+    "nyc": "^10.2.0",
+    "should": "^11.2.1",
+    "sinon": "^2.1.0"
+  },
+  "nyc": {
+    "exclude": []
+  },
+  "babel": {
+    "presets": [
+      [
+        "latest",
+        {
+          "modules": false
+        }
+      ],
+      "stage-0"
+    ]
+  }
+}
