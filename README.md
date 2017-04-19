@@ -1,4 +1,4 @@
-# EvtX
+# EvtX [![Build Status](https://travis-ci.org/redpelicans/evtx.png)](https://travis-ci.org/redpelicans/evtx)
 
 EvtX has been developed originally to help crafting of services oriented socketIO servers.
 But it's now fully independent from socketIO.
