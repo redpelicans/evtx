@@ -1,12 +1,12 @@
 # EvtX
 
-EvtX has been developped originally to help the craft of service oriented socketIO servers. 
+EvtX has been developed originally to help crafting of services oriented socketIO servers.
 But it's now fully independent from socketIO.
 
-It's just is a tiny layer to facilitate method calls in an aspect oriented way. 
+It's just is a tiny layer to facilitate method calls in an aspect oriented way.
 
-It's mainly inspired by express and featherJS's hooks. 
-Compared to featherJS it doens't just focus on CRUD methods, you can wrapped any methods you want.
+It's mainly inspired by express and featherJS's hooks.
+Compared to featherJS it doesn't just focus on CRUD methods, you can wrapped any methods you want.
 
 It's just 100 lines of code that help to call methods surrounded by before and after hooks organized in 3 levels: `evtx`, `service` and `method`.
 
@@ -14,7 +14,7 @@ It's just 100 lines of code that help to call methods surrounded by before and a
 
 ## Service
 
-A Service is defined by a plain old javascript object:
+A Service is defined by a plain old JavaScript object:
 
 ```
 const calculator = {
@@ -28,7 +28,7 @@ const calculator = {
 };
 ```
 
-`sum` and `product` are targets methods. 
+`sum` and `product` are targets methods.
 
 Target methods will get an input and must return an output value wrapped in a Promise.
 You can use them in an asynchronous context.
@@ -44,9 +44,9 @@ A evtx context is made of:
   * `output`: data returned by the target method.
   * `service`: service name
   * `method`: method name
-  * `evtx`: evtx object, usefull to get an other service (`evtx.service(name)`)
+  * `evtx`: evtx object, useful to get an other service (`evtx.service(name)`)
   * `message`: original message passed to `run()`
- 
+
 
 ## EvtX
 
@@ -67,7 +67,7 @@ To get a service:
   const service = evtx.service(calculator.name);
 ```
 
-Returned service is a wrapper arround previous definition and will be executed in the execution context of an EvtX `context`, not in it's definition context . 
+Returned service is a wrapper around previous definition and will be executed in the execution context of an EvtX `context`, not in it's definition context .
 
 To execute a method on a service:
 
@@ -79,17 +79,17 @@ To execute a method on a service:
 ```
 
 * `{ method, service }` are mandatory props to target a specific method in a service previously declared.
-* `input` is an optionnal prop forwarded to target method as input parameter.
+* `input` is an optional prop forwarded to target method as input parameter.
 
 `run` accepts a second parameter as a global context that will be merged with evtx context object so we can enhance context received by all hooks by foreign props.
 
-or 
+or
 
 ```
   evtx.service(calculator.name).sum([1, 2]).then();
 ```
 
-An EvtX service is an EventEmitter, so to emit a message along hooks chain or within a target meethod, just do:
+An EvtX service is an EventEmitter, so to emit a message along hooks chain or within a target method, just do:
 
 Target method:
 
@@ -113,7 +113,7 @@ Hook:
   }
 ```
 
-One can also emit an event ike this:
+One can also emit an event like this:
 
 ```
   // in a target method
@@ -227,11 +227,11 @@ Let's define a hook to increment each value of the input array:
 We will re use `incResult`. So to register service and method level hooks, do:
 
 ```
-  const bhooks = { 
+  const bhooks = {
     all: [incInput],
     'sum': [incInput],
   };
-  const ahooks = { 
+  const ahooks = {
     all: [incResult],
     'product': [incResult]
   };
@@ -244,8 +244,8 @@ Service level hooks can rewrite target method, not method's onces.
 
 # Use case: craft a socketIO backend
 
-We use `redux` on the front end to manage actions. 
-Some actions should be managed by backend services hosted by a socketIO server. 
+We use `redux` on the front end to manage actions.
+Some actions should be managed by backend services hosted by a socketIO server.
 It that case actions are sent and received by a redux middleware
 Requested actions follow a { type, payload, replyTo } structure.
 Respond actions { type, payload }
@@ -253,7 +253,7 @@ Input `type` is a string made of 'service:method'.
 Responses will be emitted with a type set to replyTo value.
 
 `formatServiceMethod` before hook is used to structure a right `ctx` object.
-`formatResponse` after hook structure the answer sent after wia socketIO.
+`formatResponse` after hook structure the answer sent after via socketIO.
 
 The glue between EvtX en socketIO is made like this:
 
