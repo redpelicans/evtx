@@ -30,8 +30,8 @@ const calculator = {
 
 `sum` and `product` are targets methods.
 
-Target methods will get an input and must return an output value wrapped in a Promise.
-You can use them in an asynchronous context.
+Target methods will get an input and **must return** an output value wrapped in a Promise.
+You can use them in an asynchronous context, event outside of an asynchronous context you must return a Promise.
 
 Do not use service definition directly, but via `evtx` (see bellow);
 
@@ -40,13 +40,15 @@ Do not use service definition directly, but via `evtx` (see bellow);
 A context object is passed along chain hooks, created first before the first hook, passed via before hooks, used as the execution context `this` of the target method and passed again to after hooks.
 
 A evtx context is made of:
+  * `locals`: local execution context injected by Evtx#run(Object)
   * `input`: data to transform
   * `output`: data returned by the target method.
   * `service`: service name
   * `method`: method name
-  * `evtx`: evtx object, useful to get an other service (`evtx.service(name)`)
+  * `evtx`: evtx object, useful to get an other service `evtx.service(name)`. `evtx.globals` is the global context injected by Evtx(Object) call.
   * `message`: original message passed to `run()`
 
+Context#locals and #globals can be enhanced at EvtX() call or for each EvtX#run() call.
 
 ## EvtX
 
@@ -55,7 +57,7 @@ Main object to declare services:
 ```
   import EvtX fom 'evtx';
 
-  const evtx = EvtX()
+  const evtx = EvtX(globalContext)
     .use(calculator.name, calculator)
     .use('test', testService);
 ```
@@ -74,7 +76,7 @@ To execute a method on a service:
 ```
   const message = { method: 'sum', service: calculator.name, input: [1, 2] };
   evtx
-    .run(message, globalContext)
+    .run(message, localContext)
     .then(res => should(res).equal(3))
 ```
 

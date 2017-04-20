@@ -29,15 +29,33 @@ describe('EvtX', () => {
   it('should get a global context',  (done) => {
     const doit = {
       doit() {
-        return Promise.resolve(this.key);
+        return Promise.resolve(this.evtx.globals.key);
       },
     };
 
+    const ctx = { key: 11 };
+    const evtx = EvtX(ctx).use('doit', doit);
+    const message = { method: 'doit', service: 'doit' };
+    evtx
+      .run(message)
+      .then(res => { should(res).equal(ctx.key); done() })
+      .catch(done);
+  });
+
+
+  it('should get a local context',  (done) => {
+    const doit = {
+      doit() {
+        return Promise.resolve(this.locals.key);
+      },
+    };
+
+    const ctx = { key: 11 };
     const evtx = EvtX().use('doit', doit);
     const message = { method: 'doit', service: 'doit' };
     evtx
-      .run(message, { key: 11 })
-      .then(res => { should(res).equal(11); done() })
+      .run(message, ctx)
+      .then(res => { should(res).equal(ctx.key); done() })
       .catch(done);
   });
 

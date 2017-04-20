@@ -1,4 +1,7 @@
 import EventEmitter from 'events';
+import debug from 'debug';
+
+const loginfo = debug('evtx');
 
 const isFunction = obj => typeof obj === 'function';
 const reduceHooks = (ctx, hooks) => hooks.reduce((acc, hook) => acc.then(hook), Promise.resolve(ctx));
@@ -30,9 +33,9 @@ export class Service extends EventEmitter {
   }
 
   addMethod(key) {
-    this[key] = (input, globalContext) => {
+    this[key] = (input, localContext) => {
       const message = { service: this.path, method: key, input };
-      return this.evtx.run(message, globalContext);
+      return this.evtx.run(message, localContext);
     };
   }
 
@@ -66,9 +69,9 @@ export class Service extends EventEmitter {
 }
 
 class EvtX {
-  constructor(config) {
+  constructor(globals) {
     this.services = {};
-    this.config = config;
+    this.globals = globals;
   }
 
   configure(fct) {
@@ -82,6 +85,7 @@ class EvtX {
 
   use(path, service) {
     this.services[path] = new Service(service, path, this);
+    loginfo(`${path} service registered`);
     return this;
   }
 
@@ -123,7 +127,7 @@ class EvtX {
     return this.afterHooks || [];
   }
 
-  run(message, globalContext) {
+  run(message, locals) {
     const execMethod = (ctx) => {
       const { service, method } = ctx;
       const evtXService = this.service(service);
@@ -134,7 +138,7 @@ class EvtX {
     };
     const { service, method, input } = message;
     const ctx = {
-      ...globalContext,
+      locals,
       message,
       service,
       method,
@@ -151,4 +155,4 @@ class EvtX {
   }
 }
 
-export default (config) => new EvtX(config);
+export default (context) => new EvtX(context);

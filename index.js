@@ -13,6 +13,10 @@ var _events = require('events');
 
 var _events2 = _interopRequireDefault(_events);
 
+var _debug = require('debug');
+
+var _debug2 = _interopRequireDefault(_debug);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -22,6 +26,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var loginfo = (0, _debug2.default)('evtx');
 
 var isFunction = function isFunction(obj) {
   return typeof obj === 'function';
@@ -52,31 +58,12 @@ var Service = exports.Service = function (_EventEmitter) {
   _createClass(Service, [{
     key: 'setup',
     value: function setup(definition) {
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
+      var _this2 = this;
 
-      try {
-        for (var _iterator = Object.keys(definition)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var key = _step.value;
-
-          var value = definition[key];
-          if (isFunction(value)) this.addMethod(key);
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return) {
-            _iterator.return();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
+      Object.keys(definition).forEach(function (key) {
+        var value = definition[key];
+        if (isFunction(value)) _this2.addMethod(key);
+      });
     }
   }, {
     key: 'getBeforeHooks',
@@ -95,24 +82,24 @@ var Service = exports.Service = function (_EventEmitter) {
   }, {
     key: 'addMethod',
     value: function addMethod(key) {
-      var _this2 = this;
+      var _this3 = this;
 
       this[key] = function (input, globalContext) {
-        var message = { service: _this2.path, method: key, input: input };
-        return _this2.evtx.run(message, globalContext);
+        var message = { service: _this3.path, method: key, input: input };
+        return _this3.evtx.run(message, globalContext);
       };
     }
   }, {
     key: 'run',
     value: function run(key, ctx) {
-      var _this3 = this;
+      var _this4 = this;
 
       var baseMethod = function baseMethod(ctx) {
         // eslint-disable-line no-shadow
         var method = ctx.method,
             service = ctx.service;
 
-        var methodObj = _this3.definition[method];
+        var methodObj = _this4.definition[method];
         if (!methodObj || !isFunction(methodObj)) throw new Error('Unknown method: ' + method + ' for service: ' + service);
         return methodObj.bind(ctx)(ctx.input).then(function (data) {
           return _extends({}, ctx, { output: data });
@@ -123,7 +110,7 @@ var Service = exports.Service = function (_EventEmitter) {
         // eslint-disable-line no-shadow
         var method = ctx.method;
 
-        var hooks = [].concat(_toConsumableArray(_this3.getBeforeHooks(method)), [baseMethod], _toConsumableArray(_this3.getAfterHooks(method)));
+        var hooks = [].concat(_toConsumableArray(_this4.getBeforeHooks(method)), [baseMethod], _toConsumableArray(_this4.getAfterHooks(method)));
         return reduceHooks(ctx, hooks);
       };
 
@@ -170,6 +157,7 @@ var EvtX = function () {
     key: 'use',
     value: function use(path, service) {
       this.services[path] = new Service(service, path, this);
+      loginfo(path + ' service registered');
       return this;
     }
   }, {
@@ -229,13 +217,13 @@ var EvtX = function () {
   }, {
     key: 'run',
     value: function run(message, globalContext) {
-      var _this4 = this;
+      var _this5 = this;
 
       var execMethod = function execMethod(ctx) {
         var service = ctx.service,
             method = ctx.method;
 
-        var evtXService = _this4.service(service);
+        var evtXService = _this5.service(service);
         if (!evtXService) throw new Error('Unknown service: ' + service);
         var evtXMethod = evtXService[method];
         if (!evtXMethod || !isFunction(evtXMethod)) throw new Error('Unknown method: ' + method + ' for service: ' + service);
