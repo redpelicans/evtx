@@ -41,11 +41,12 @@ A context object is passed along chain hooks, created first before the first hoo
 
 A evtx context is made of:
   * `locals`: local execution context injected by Evtx#run(Object)
+  * `globals`: global execution context injected by Evtx(Object)
   * `input`: data to transform
   * `output`: data returned by the target method.
   * `service`: service name
   * `method`: method name
-  * `evtx`: evtx object, useful to get an other service `evtx.service(name)`. `evtx.globals` is the global context injected by Evtx(Object) call.
+  * `evtx`: evtx object, useful to get an other service `evtx.service(name)`.
   * `message`: original message passed to `run()`
 
 Context#locals and #globals can be enhanced at EvtX() call or for each EvtX#run() call.
@@ -57,7 +58,7 @@ Main object to declare services:
 ```
   import EvtX fom 'evtx';
 
-  const evtx = EvtX(globalContext)
+  const evtx = EvtX(globals)
     .use(calculator.name, calculator)
     .use('test', testService);
 ```
@@ -76,7 +77,7 @@ To execute a method on a service:
 ```
   const message = { method: 'sum', service: calculator.name, input: [1, 2] };
   evtx
-    .run(message, localContext)
+    .run(message, locals)
     .then(res => should(res).equal(3))
 ```
 

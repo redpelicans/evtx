@@ -235,6 +235,7 @@ var EvtX = function () {
 
       var ctx = {
         locals: locals,
+        globals: this.globals,
         message: message,
         service: service,
         method: method,
