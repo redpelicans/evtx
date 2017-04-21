@@ -1,9 +1,9 @@
 {
   "name": "evtx",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "author": "redpelicans",
   "license": "MIT",
-  "description": "Aspect oriented middleware librairy",
+  "description": "Aspect oriented middleware library",
   "keywords": [
     "aspect",
     "middleware"
