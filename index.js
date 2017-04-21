@@ -84,9 +84,9 @@ var Service = exports.Service = function (_EventEmitter) {
     value: function addMethod(key) {
       var _this3 = this;
 
-      this[key] = function (input, globalContext) {
+      this[key] = function (input, localContext) {
         var message = { service: _this3.path, method: key, input: input };
-        return _this3.evtx.run(message, globalContext);
+        return _this3.evtx.run(message, localContext);
       };
     }
   }, {
@@ -135,11 +135,11 @@ var Service = exports.Service = function (_EventEmitter) {
 }(_events2.default);
 
 var EvtX = function () {
-  function EvtX(config) {
+  function EvtX(globals) {
     _classCallCheck(this, EvtX);
 
     this.services = {};
-    this.config = config;
+    this.globals = globals;
   }
 
   _createClass(EvtX, [{
@@ -216,7 +216,7 @@ var EvtX = function () {
     }
   }, {
     key: 'run',
-    value: function run(message, globalContext) {
+    value: function run(message, locals) {
       var _this5 = this;
 
       var execMethod = function execMethod(ctx) {
@@ -233,7 +233,8 @@ var EvtX = function () {
           method = message.method,
           input = message.input;
 
-      var ctx = _extends({}, globalContext, {
+      var ctx = {
+        locals: locals,
         message: message,
         service: service,
         method: method,
@@ -245,7 +246,7 @@ var EvtX = function () {
 
           return (_evtx$service = this.evtx.service(this.service)).emit.apply(_evtx$service, arguments);
         }
-      });
+      };
 
       var hooks = [].concat(_toConsumableArray(this.getBeforeHooks()), [execMethod], _toConsumableArray(this.getAfterHooks()));
       return reduceHooks(ctx, hooks).then(function (ctx) {
@@ -257,6 +258,6 @@ var EvtX = function () {
   return EvtX;
 }();
 
-exports.default = function (config) {
-  return new EvtX(config);
+exports.default = function (context) {
+  return new EvtX(context);
 };

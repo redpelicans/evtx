@@ -139,6 +139,7 @@ class EvtX {
     const { service, method, input } = message;
     const ctx = {
       locals,
+      globals: this.globals,
       message,
       service,
       method,

@@ -29,7 +29,7 @@ describe('EvtX', () => {
   it('should get a global context',  (done) => {
     const doit = {
       doit() {
-        return Promise.resolve(this.evtx.globals.key);
+        return Promise.resolve(this.globals.key);
       },
     };
 
