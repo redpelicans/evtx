@@ -6,6 +6,25 @@ const loginfo = debug('evtx');
 const isFunction = obj => typeof obj === 'function';
 const reduceHooks = (ctx, hooks) => hooks.reduce((acc, hook) => acc.then(hook), Promise.resolve(ctx));
 
+export function UnknownServiceError(service) {
+    Error.captureStackTrace(this, UnknownServiceError);
+    this.message = `Unknown service: ${service}`;
+    this.name = 'UnknownServiceError';
+    this.service = service;
+}
+UnknownServiceError.prototype = Object.create(Error.prototype);
+UnknownServiceError.prototype.constructor = UnknownServiceError;
+
+export function UnknownMethodError(service, method) {
+    Error.captureStackTrace(this, UnknownMethodError);
+    this.message = `Unknown method: ${method} for service: ${service}`;
+    this.name = 'UnknownMethodError';
+    this.service = service;
+    this.method = method;
+}
+UnknownMethodError.prototype = Object.create(Error.prototype);
+UnknownMethodError.prototype.constructor = UnknownMethodError;
+
 export class Service extends EventEmitter {
   constructor(definition, path, evtx) {
     super();
@@ -43,7 +62,7 @@ export class Service extends EventEmitter {
     const baseMethod = ctx => { // eslint-disable-line no-shadow
       const { method, service } = ctx;
       const methodObj = this.definition[method];
-      if (!methodObj || !isFunction(methodObj)) throw new Error(`Unknown method: ${method} for service: ${service}`);
+      if (!methodObj || !isFunction(methodObj)) throw new UnknownMethodError(service, method);
       return (methodObj.bind(ctx)(ctx.input)).then(data => ({ ...ctx, output: data }));
     };
 
@@ -131,9 +150,9 @@ class EvtX {
     const execMethod = (ctx) => {
       const { service, method } = ctx;
       const evtXService = this.service(service);
-      if (!evtXService) throw new Error(`Unknown service: ${service}`);
+      if (!evtXService) throw new UnknownServiceError(service);
       const evtXMethod = evtXService[method];
-      if (!evtXMethod || !isFunction(evtXMethod)) throw new Error(`Unknown method: ${method} for service: ${service}`);
+      if (!evtXMethod || !isFunction(evtXMethod)) throw new UnknownMethodError(service, method);
       return evtXService.run(method, ctx);
     };
     const { service, method, input } = message;

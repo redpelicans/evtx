@@ -9,6 +9,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+exports.UnknownServiceError = UnknownServiceError;
+exports.UnknownMethodError = UnknownMethodError;
+
 var _events = require('events');
 
 var _events2 = _interopRequireDefault(_events);
@@ -37,6 +40,25 @@ var reduceHooks = function reduceHooks(ctx, hooks) {
     return acc.then(hook);
   }, Promise.resolve(ctx));
 };
+
+function UnknownServiceError(service) {
+  Error.captureStackTrace(this, UnknownServiceError);
+  this.message = 'Unknown service: ' + service;
+  this.name = 'UnknownServiceError';
+  this.service = service;
+}
+UnknownServiceError.prototype = Object.create(Error.prototype);
+UnknownServiceError.prototype.constructor = UnknownServiceError;
+
+function UnknownMethodError(service, method) {
+  Error.captureStackTrace(this, UnknownMethodError);
+  this.message = 'Unknown method: ' + method + ' for service: ' + service;
+  this.name = 'UnknownMethodError';
+  this.service = service;
+  this.method = method;
+}
+UnknownMethodError.prototype = Object.create(Error.prototype);
+UnknownMethodError.prototype.constructor = UnknownMethodError;
 
 var Service = exports.Service = function (_EventEmitter) {
   _inherits(Service, _EventEmitter);
@@ -100,7 +122,7 @@ var Service = exports.Service = function (_EventEmitter) {
             service = ctx.service;
 
         var methodObj = _this4.definition[method];
-        if (!methodObj || !isFunction(methodObj)) throw new Error('Unknown method: ' + method + ' for service: ' + service);
+        if (!methodObj || !isFunction(methodObj)) throw new UnknownMethodError(service, method);
         return methodObj.bind(ctx)(ctx.input).then(function (data) {
           return _extends({}, ctx, { output: data });
         });
@@ -224,9 +246,9 @@ var EvtX = function () {
             method = ctx.method;
 
         var evtXService = _this5.service(service);
-        if (!evtXService) throw new Error('Unknown service: ' + service);
+        if (!evtXService) throw new UnknownServiceError(service);
         var evtXMethod = evtXService[method];
-        if (!evtXMethod || !isFunction(evtXMethod)) throw new Error('Unknown method: ' + method + ' for service: ' + service);
+        if (!evtXMethod || !isFunction(evtXMethod)) throw new UnknownMethodError(service, method);
         return evtXService.run(method, ctx);
       };
       var service = message.service,
