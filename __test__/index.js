@@ -1,5 +1,5 @@
 import should from 'should';
-import EvtX, { Service } from '../src';
+import EvtX, { Service, UnknownServiceError, UnknownMethodError } from '../src';
 
 const { describe, it } = global;
 
@@ -162,6 +162,37 @@ describe('EvtX', () => {
       .then(res => { should(res.result).equal(7); done() })
       .catch(done);
   });
+
+  it('should throw UnknownServiceError',  (done) => {
+    const evtx = EvtX().use(calculator.name, calculator);
+    const service = 'fakeService';
+    const message = { service };
+    evtx
+      .run(message)
+      .catch(err => {
+        should(err).instanceof(UnknownServiceError); 
+        should(err.service).equal(service); 
+        done();
+      })
+      .catch(done);
+  });
+
+  it('should throw UnknownMethodError',  (done) => {
+    const evtx = EvtX().use(calculator.name, calculator);
+    const method = 'fakeMethod';
+    const message = { service: calculator.name, method };
+    evtx
+      .run(message)
+      .catch(err => {
+        should(err).instanceof(UnknownMethodError); 
+        should(err.service).equal(calculator.name); 
+        should(err.method).equal(method); 
+        done();
+      })
+      .catch(done);
+  });
+
+
 
 });
 
